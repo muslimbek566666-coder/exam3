@@ -1,129 +1,67 @@
-const btnEl = document.querySelector("#mode-btn");
-const btnEl2 = document.querySelector("#mode-img");
-const btnEl3 = document.querySelector("#mode-text");
-const btnfIcon = document.querySelector("#fIcon");
+let searchEl = document.querySelector("#search");
+let cardEl = document.querySelector("#cards");
+let selectEl = document.querySelector("#regions");
+let btnEl = document.querySelector("#btn");
+
+async function getCountries() {
+  try {
+    let response = await fetch(
+      "https://countries-api-steel-theta.vercel.app/api/countries",
+    );
+    console.log(response);
+    if (!response.ok) {
+      throw new Error("Muammo yuzaga keldi");
+    }
+
+    let data = await response.json();
+    updateUi(data.data);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+getCountries();
+
+function updateUi(arr) {
+  cardEl.innerHTML = "";
+
+  arr.forEach((count) => {
+    cardEl.innerHTML += `
+    <div class="card">
+    <img src="${count.flag}" alt="">
+     <h2>${count.name}</h2>
+     <p><b>Population</b>: ${count.population}</p>
+     <p><b>Region</b>: ${count.region}</p>
+     <p><b>Capital</b>: ${count.capital}</p>
+     </div>
+    `;
+  });
+}
+
+searchEl.addEventListener("input", async () => {
+  let natija = await fetch(
+    `https://countries-api-steel-theta.vercel.app/api/countries?name=${searchEl.value}&region=${selectEl.value}`,
+  );
+  let data = await natija.json();
+  cardEl.innerHTML = "";
+  updateUi(data.data);
+});
+
+selectEl.addEventListener("change", async () => {
+  let ready = await fetch(
+    `https://countries-api-steel-theta.vercel.app/api/countries?name=${searchEl.value}&region=${selectEl.value}`,
+  );
+  let data = await ready.json();
+  cardEl.innerHTML = "";
+  updateUi(data.data);
+});
 
 btnEl.addEventListener("click", () => {
   document.body.classList.toggle("dark-mode");
 
-  if (document.body.classList.contains("dark-mode")) {
-    btnEl2.src = "./images/sunrise.svg";
-    btnEl2.style.filter = "brightness(0) invert(1)";
-    btnEl3.textContent = "Light Mode";
-    btnfIcon.src = "./images/filter-icon-dark.svg";
+  if (document.body.className === "dark-mode") {
+    btnEl.innerText = "Light mode";
   } else {
-    btnEl2.src = "./images/moon.svg";
-    btnEl2.style.filter = "none";
-    btnEl3.textContent = "Dark Mode";
-    btnfIcon.src = "./images/filter-icon-light.svg";
+    btnEl.innerText = "Dark mode";
   }
 });
-
-//
-// filter
-//
-
-let filterBtn = document.querySelector("#filter-btn");
-let regionOptions = document.querySelector("#region-options");
-let regions = document.querySelectorAll(".region-options p");
-let countries = document.querySelectorAll(".country");
-
-filterBtn.addEventListener("click", () => {
-  regionOptions.classList.toggle("hidden");
-});
-
-regions.forEach((region) => {
-  region.addEventListener("click", () => {
-    let selectedRegion = region.dataset.region;
-
-    countries.forEach((country) => {
-      let countryRegion = country.dataset.region;
-
-      if (
-        selectedRegion === "all" ||
-        country.dataset.region === selectedRegion
-      ) {
-        country.classList.remove("hidden");
-      } else {
-        country.classList.add("hidden");
-      }
-    });
-
-    regionOptions.classList.add("hidden");
-  });
-});
-
-let searchInput = document.querySelector("#searchInput");
-let countriesContainer = document.querySelector(".countries");
-
-let selectedRegion = "all";
-
-function filterCountries() {
-  let searchText = searchInput.value.toLowerCase().trim();
-
-  countries.forEach((country) => {
-    let countryName = country.querySelector("h2").textContent.toLowerCase();
-    let countryRegion = country.dataset.region;
-
-    let regionMatch =
-      selectedRegion === "all" || countryRegion === selectedRegion;
-
-    let searchMatch = countryName.includes(searchText);
-
-    if (regionMatch && searchMatch) {
-      country.classList.remove("hidden");
-    } else {
-      country.classList.add("hidden");
-    }
-  });
-}
-
-//
-// search
-//
-
-searchInput.addEventListener("input", filterCountries);
-
-regions.forEach((region) => {
-  region.addEventListener("click", () => {
-    selectedRegion = region.dataset.region;
-
-    filterCountries();
-    regionOptions.classList.add("hidden");
-  });
-});
-// async function getProducts() {
-//   let inputVal = "uzbekistan";
-//   try {
-//     let response = await fetch(
-//       `https://countries-api-steel-theta.vercel.app/api/countries?name=${inputVal}`,
-//     );
-//     console.log(response);
-//     if (!response.ok) {
-//       throw new Error("Products olib kelishda muammo yuzaga keldi");
-//     }
-//     let data = await response.json();
-//     console.log(data);
-//   } catch (error) {
-//     console.log(error);
-//   }
-// }
-// getProducts();
-
-// async function getProducts() {
-//   let inputVal = "";
-//   try {
-//     let response = await fetch(
-//       `https://countries-api-steel-theta.vercel.app/api/countries?region=${inputVal}`,
-//     );
-//     console.log(response);
-//     if (!response.ok) {
-//       throw new Error("Products olib kelishda muammo yuzaga keldi");
-//     }
-//     let data = await response.json();
-//     console.log(data);
-//   } catch (error) {
-//     console.log(error);
-//   }
-// }
-// getProducts();
